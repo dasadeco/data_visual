@@ -26,11 +26,11 @@ st.markdown('<style>#vg-tooltip-element{z-index: 1000051}</style>',
 ## Desactivo el maximo de filas a mostrar de Altair, porque pueden ser muchas
 alt.data_transformers.disable_max_rows()   
 
-with st.expander("Jugadores por temporada..."):
+with st.expander("Jugadores por temporada ..."):
     ### PRIMER GRÁFICO CON EL NUMERO DE JUGADORES POR TEMPORADA
     st.markdown(" ### NÚMERO DE JUGADORES POR TEMPORADA")
-    st.markdown(" Mostramos en una gráfico de lineas el número de jugadores distintos de que disponemos por temporada. "\
-                "Vemos que los datos recogidos son de entre 2008/2009 y 2015/2016")
+    st.markdown(" Mostramos en un gráfico de lineas el número de jugadores distintos de que disponemos por temporada. "\
+                "Vemos que los datos recogidos van de 2008/2009 a 2015/2016")
     
     df_mkt_player_team_matches = pd.read_csv('df_mkt_player_team_matches_v2.csv', header=0)
     df_altair1 = pd.DataFrame(index=['numero_jugadores'])    
@@ -49,9 +49,9 @@ with st.expander("Jugadores por temporada..."):
 
 
 
-with st.expander("Valor de mercado de futbolistas por jugadores y años en una selección de países..."):
+with st.expander("Valor de mercado de futbolistas y paises de procedencia por años (selección de países) ..."):
     ### SEGUNDO GRÁFICO CON EL REPARTO DEL VALOR DE MERCADO DE LOS FUTBOLISTAS POR TEMPORADA Y POR NACIONALIDAD DEL FUTBOLISTA
-    st.markdown(" ### REPARTO DEL VALOR DE MERCADO DE LOS FUTBOLISTAS POR TEMPORADA Y POR NACIONALIDAD DEL FUTBOLISTA ")
+    st.markdown(" ### REPARTO DEL VALOR DE MERCADO DE LOS FUTBOLISTAS POR TEMPORADA Y POR PAISES DE PROCEDENCIA ")
     df_altair2 = df_mkt_player_team_matches.loc[:,['player_name','player_nation', 'season', 'market_val_amnt']]
     df_altair2.drop_duplicates(inplace=True)
     df_altair2.dropna(axis=0, how='any', subset=['market_val_amnt'], inplace=True)
@@ -80,7 +80,7 @@ with st.expander("Valor de mercado de futbolistas por jugadores y años en una s
 with st.expander("Valor de mercado a nivel mundial por años..."):
     ### TERCER GRÁFICO CON EL REPARTO DEL VALOR DE MERCADO DE LOS FUTBOLISTAS POR TEMPORADA Y POR NACIONALIDAD DEL FUTBOLISTA EN MAPA MUNDIAL
     st.markdown(" ## VALOR DE MERCADO DE LOS PAISES DE PROCEDENCIA POR TEMPORADA")
-    st.markdown(" ##### ( Los países no mostrados no tienen datos en ese año. ) ")
+    st.markdown(" ##### Los países no mostrados no tienen datos en ese año. ")
     map_geojson ={
     "Bosnia-Herzegovina":"Bosnia and Herzegovina",
     "Brunei Darussalam":"Brunei",
@@ -191,7 +191,7 @@ with st.expander("Datos de rendimiento de futbolistas", expanded=True  ):
     if choose == 'Cualquiera':
         st.markdown(" ### COMPARACIÓN RENDIMIENTO GENERAL ENTRE FUTBOLISTAS")
         st.markdown(" Ahora vamos a mostrar un gráfico de dispersión por cada año de entre los que tengamos suficientes datos.  En el Eje X se va a mostrar el rendimiento medio de un futbolista en un año, "\
-                    "mientras que en el eje Y se mostrará el valor de mercado medio de ese futbolista en ese año")
+                    "mientras que en el eje Y se mostrará el valor de mercado de ese futbolista en ese año")
         df_mkt_player_team_matches_attributes = pd.read_csv('df_mkt_player_team_matches_attributes.csv', header=0)
         
         df_altair3 = df_mkt_player_team_matches_attributes.loc[:,['player_name','season','season_player_age','team_long_name', \
@@ -280,7 +280,7 @@ with st.expander("Datos de rendimiento de futbolistas", expanded=True  ):
     if choose == 'Tarjetas':                        
         st.markdown(" ### DEFENSAS Y TARJETAS")    
         st.markdown("En el siguiente gráfico, vamos a medir cuantas tarjetas amarillas y rojas han recibido por temporada los defensas "\
-                    "y por tanto, saber cual es el riesgo de que les expulsen por tarjeta roja.")
+                    "así se puede estimar la frecuencia con la que son expulsados.")
         df_mkt_player_team_matches_cards = pd.read_csv('df_mkt_player_team_matches_cards.csv', header=0)  
         df_altair5_only_defences = df_mkt_player_team_matches_cards.loc[df_mkt_player_team_matches_cards['player_pos'].isin(['RB', 'CB', 'LB', 'DM', 'defence'])]
         df_altair5 = df_altair5_only_defences.loc[:,['player_api_id','player_name','season','season_player_age' \
