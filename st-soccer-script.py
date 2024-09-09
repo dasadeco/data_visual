@@ -17,11 +17,6 @@ def mapping_player_nation_geo(name):
 icon = Image.open("UNED.png") 
 st.set_page_config(page_title="Estadísticas de rendimientos y valores de mercado de futbolistas de clubes europeos", layout="wide",
                    page_icon=icon)
-icon1=":material/thumb_up:"
-icon2=":material/thumb_up:"
-icon3=":material/thumb_up:"
-icon4=":material/thumb_up:"
-icon5=":material/thumb_up:"
 
 st.markdown('<style>#vg-tooltip-element{z-index: 1000051}</style>',
              unsafe_allow_html=True)
@@ -126,7 +121,7 @@ with st.expander("Valor de mercado a nivel mundial por años..."):
         df_altair_geonations_seasons['season'].astype('string')
     
     df_altair_geo_sea_dict = {} 
-    for i in np.arange(2009,2022):
+    for i in np.arange(2009,2017):
         df_altair_geo_sea_dict[str(i)] = df_altair_geonations_seasons.loc[df_altair_geonations_seasons['season']==i]
     
         
@@ -135,7 +130,7 @@ with st.expander("Valor de mercado a nivel mundial por años..."):
       url=countries_geojson, format=alt.DataFormat(property="features", type="json")
     )
     
-    year_filter = [str(i) for i in np.arange(2009,2022)]
+    year_filter = [str(i) for i in np.arange(2009,2017)]
     col1, col2, col3, col4 = st.columns(4)
     with col1:    
         year_selection = st.selectbox(label="Seleccione un año:", key="chloropleth", options=sorted(year_filter))
@@ -175,17 +170,24 @@ with st.expander("Valor de mercado a nivel mundial por años..."):
     
     st.altair_chart(chart3)
 
-
-
+        
 with st.sidebar:
     choose = option_menu(        
         "Seleccione por posición del futbolista en el campo",
-        ["Cualquiera", "Delanteros", "Defensas", "Porteros", "Centrocampistas"]
-        )
-        
-age_domain = [15, 20, 25, 30, 35] 
+        ["Cualquiera", 
+         "Porteros",
+         "Defensas",         
+         "Centrocampistas",
+         "Delanteros",
+         "Goles",
+         "Tarjetas"
+         ],
+         key="chooser")
+    choose
 
-with st.expander("Datos de rendimiento de futbolistas"):
+age_domain = [15, 20, 25, 30, 35]
+
+with st.expander("Datos de rendimiento de futbolistas", expanded=True  ):
 
     if choose == 'Cualquiera':
         st.markdown(" ### COMPARACIÓN RENDIMIENTO GENERAL ENTRE FUTBOLISTAS")
@@ -234,7 +236,7 @@ with st.expander("Datos de rendimiento de futbolistas"):
         sca_list[str(year_selection2)]           
         
         
-    if choose == 'Delanteros':
+    if choose == 'Goles':
         st.markdown(" ### DELANTEROS Y GOLES")
         st.markdown("En el siguiente gráfico vamos a medir la capacidad goleadora de los delanteros, así que primero vamos a filtrar los jugadores cuya demarcación hace que se espere de ellos una cierta cantidad de goles")
         df_mkt_player_team_matches_goals = pd.read_csv('df_mkt_player_team_matches_goals.csv', header=0)
@@ -276,7 +278,7 @@ with st.expander("Datos de rendimiento de futbolistas"):
             pass;
         sca_list_2[str(year_selection3)]           
     
-    if choose == 'Defensas':                        
+    if choose == 'Tarjetas':                        
         st.markdown(" ### DEFENSAS Y TARJETAS")    
         st.markdown("En el siguiente gráfico, vamos a medir cuantas tarjetas amarillas y rojas han recibido por temporada los defensas "\
                     "y por tanto, saber cual es el riesgo de que les expulsen por tarjeta roja.")
@@ -381,7 +383,7 @@ with st.expander("Datos de rendimiento de futbolistas"):
 
     if choose == 'Centrocampistas':                        
         st.markdown(" ### CENTROCAMPISTAS")        
-        st.markdown("En este último gráfico, examinaremos distintas características de los centrocampistas "\
+        st.markdown("En este gráfico, examinaremos distintas características de los centrocampistas "\
                     "en relación al precio de mercado")
         df_mkt_player_team_matches_attributes = pd.read_csv('df_mkt_player_team_matches_attributes.csv', header=0)    
         df_altair7_only_midfielders = df_mkt_player_team_matches_attributes.loc[df_mkt_player_team_matches_attributes['player_pos'] \
@@ -424,4 +426,102 @@ with st.expander("Datos de rendimiento de futbolistas"):
             ).properties( width=800, height=500 ).interactive()
             sca_list_5[str(i)] = scatter5
             
-        sca_list_5[str(year_selection6)]                 
+        sca_list_5[str(year_selection6)]       
+
+
+    if choose == 'Defensas':                        
+       st.markdown(" ### DEFENSAS")        
+       st.markdown("En este gráfico, examinaremos varios atributos medibles de los defensas "\
+                   "en relación al precio de mercado")
+       df_mkt_player_team_matches_attributes = pd.read_csv('df_mkt_player_team_matches_attributes.csv', header=0)    
+       df_altair8_only_defenders = df_mkt_player_team_matches_attributes.loc[df_mkt_player_team_matches_attributes['player_pos'] \
+                                           .isin(['defence', 'RB', 'CB', 'LB', 'DM'])]
+       df_altair8 = df_altair8_only_defenders.loc[:,['player_name','season','season_player_age','team_long_name', \
+           'market_val_amnt', 'overall_rating', 'marking', 'crossing', 'interceptions', 'agility', 'reactions', 'strength', 'aggression']]
+       df_altair8.drop_duplicates(inplace=True)
+       df_altair8.dropna(axis=0, how='any', inplace=True)
+
+       df_altair8['tooltip'] = df_altair8['player_name'] + ' jugando en '+ df_altair8['team_long_name']
+               
+       sca_list_6 = {}        
+       attribs_df={"Marcaje" :"marking", 
+                   "Al cruce" : "crossing", 
+                   "Intercepción de balón" : "interceptions", 
+                   "Agilidad" : "agility",
+                   "Reacción" : "reactions",
+                   "Fuerza" : "strength",
+                   "Agresividad" : "aggression",
+                   "Valoración general": "overall_rating"}
+       col1, col2, col3 = st.columns(3)
+       with col1:
+           year_filter7 = [str(i) for i in np.arange(2009,2016)] #Filtro de años para este gráfico
+           year_selection7 = st.selectbox(label="Seleccione un año:", key="df_attribs_years", 
+                                          options=sorted(year_filter7))
+       with col2:        
+           df_attrib_selection= st.selectbox(label="Seleccione un atributo medible del defensa:", 
+                                             key="attribs_df", options=(attribs_df))
+       with col3:        
+           pass;        
+       for i in range(2009,2016):
+           scatter6 = alt.Chart(df_altair8).mark_point().encode(
+                 alt.X(f"mean({attribs_df[df_attrib_selection]}):Q", title = df_attrib_selection),
+                 alt.Y('mean(market_val_amnt):Q', title="Valor de mercado", axis=alt.Axis(titleAngle=-65, titlePadding=35)),
+                 tooltip='tooltip',                        
+                 color=alt.Color('season_player_age:Q', scale=alt.Scale(scheme='lightgreyred', reverse=True, type="bin-ordinal", domain=age_domain),  
+                                 legend=alt.Legend(orient="top", direction='horizontal', 
+                                                   titleAnchor='middle',  title="Edad del defensa"))
+           ).transform_filter(
+               'datum.season=='+str(i)
+           ).properties( width=800, height=500 ).interactive()
+           sca_list_6[str(i)] = scatter6
+           
+       sca_list_6[str(year_selection7)]
+       
+       
+    if choose == 'Delanteros':                        
+       st.markdown(" ### DELANTEROS")        
+       st.markdown("En este gráfico, examinaremos varios atributos medibles de los delanteros, al margen de los goles, "\
+                   "en relación al precio de mercado")
+       df_mkt_player_team_matches_attributes = pd.read_csv('df_mkt_player_team_matches_attributes.csv', header=0)    
+       df_altair9_only_strikers = df_mkt_player_team_matches_attributes.loc[df_mkt_player_team_matches_attributes['player_pos'] \
+                                           .isin(['AM', 'LW', 'RW', 'CF', 'SS', 'attack'])]
+       df_altair9 = df_altair9_only_strikers.loc[:,['player_name','season','season_player_age','team_long_name', \
+           'market_val_amnt', 'overall_rating', 'finishing', 'volleys', 'dribbling', 'sprint_speed', 'long_shots', 'penalties', 'heading_accuracy']]
+       df_altair9.drop_duplicates(inplace=True)
+       df_altair9.dropna(axis=0, how='any', inplace=True)
+
+       df_altair9['tooltip'] = df_altair9['player_name'] + ' jugando en '+ df_altair9['team_long_name']
+               
+       sca_list_7 = {}        
+       attribs_st={"Finalizacion" :"finishing", 
+                   "Voleas" : "volleys", 
+                   "Regate" : "dribbling", 
+                   "Sprint" : "sprint_speed",
+                   "Disparo lejano" : "long_shots",
+                   "Remate de cabeza" : "heading_accuracy",
+                   "Tiro de penalty" : "penalties",
+                   "Valoración general": "overall_rating"}
+       col1, col2, col3 = st.columns(3)
+       with col1:
+           year_filter8 = [str(i) for i in np.arange(2009,2016)] #Filtro de años para este gráfico
+           year_selection8 = st.selectbox(label="Seleccione un año:", key="st_attribs_years", 
+                                          options=sorted(year_filter8))
+       with col2:        
+           st_attrib_selection= st.selectbox(label="Seleccione un atributo medible del delantero:", 
+                                             key="attribs_st", options=(attribs_st))
+       with col3:        
+           pass;        
+       for i in range(2009,2016):
+           scatter7 = alt.Chart(df_altair9).mark_point().encode(
+                 alt.X(f"mean({attribs_st[st_attrib_selection]}):Q", title = st_attrib_selection),
+                 alt.Y('mean(market_val_amnt):Q', title="Valor de mercado", axis=alt.Axis(titleAngle=-65, titlePadding=35)),
+                 tooltip='tooltip',                        
+                 color=alt.Color('season_player_age:Q', scale=alt.Scale(scheme='lightgreyred', reverse=True, type="bin-ordinal", domain=age_domain),  
+                                 legend=alt.Legend(orient="top", direction='horizontal', 
+                                                   titleAnchor='middle',  title="Edad del delantero"))
+           ).transform_filter(
+               'datum.season=='+str(i)
+           ).properties( width=800, height=500 ).interactive()
+           sca_list_7[str(i)] = scatter7
+           
+       sca_list_7[str(year_selection8)]       
