@@ -493,12 +493,12 @@ with st.expander("Datos de rendimiento de futbolistas", expanded=True  ):
                
        sca_list_7 = {}        
        attribs_st={"Finalizacion" :"finishing", 
-                   "Voleas" : "volleys", 
+                   "Volea" : "volleys", 
                    "Regate" : "dribbling", 
                    "Sprint" : "sprint_speed",
                    "Disparo lejano" : "long_shots",
                    "Remate de cabeza" : "heading_accuracy",
-                   "Tiro de penalty" : "penalties",
+                   "Lanzamiento de penalty" : "penalties",
                    "Valoración general": "overall_rating"}
        col1, col2, col3 = st.columns(3)
        with col1:
