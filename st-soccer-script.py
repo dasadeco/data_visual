@@ -79,7 +79,7 @@ with st.expander("Valor de mercado de futbolistas por jugadores y años en una s
     
 with st.expander("Valor de mercado a nivel mundial por años..."):
     ### TERCER GRÁFICO CON EL REPARTO DEL VALOR DE MERCADO DE LOS FUTBOLISTAS POR TEMPORADA Y POR NACIONALIDAD DEL FUTBOLISTA EN MAPA MUNDIAL
-    st.markdown(" ## VALOR DE MERCADO DE LOS FUTBOLISTAS POR TEMPORADA Y POR NACIONALIDAD DEL FUTBOLISTA.  ")
+    st.markdown(" ## VALOR DE MERCADO DE LOS PAISES DE PROCEDENCIA POR TEMPORADA")
     st.markdown(" ##### ( Los países no mostrados no tienen datos en ese año. ) ")
     map_geojson ={
     "Bosnia-Herzegovina":"Bosnia and Herzegovina",
@@ -183,7 +183,6 @@ with st.sidebar:
          "Tarjetas"
          ],
          key="chooser")
-    choose
 
 age_domain = [15, 20, 25, 30, 35]
 
