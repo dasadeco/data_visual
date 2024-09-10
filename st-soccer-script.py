@@ -14,7 +14,7 @@ def mapping_player_nation_geo(name):
     else:
         return name
 
-icon = Image.open("UNED.png") 
+icon = Image.open("field.png") 
 st.set_page_config(page_title="Estadísticas de rendimientos y valores de mercado de futbolistas de clubes europeos", layout="wide",
                    page_icon=icon)
 
