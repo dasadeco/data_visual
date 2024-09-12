@@ -184,9 +184,14 @@ with st.sidebar:
          ],
          key="chooser")
 
+    st.markdown('<h1>U.N.E.D</h1>', unsafe_allow_html=True)
+    st.markdown("<h2>Master en Ciencia y Tecnología de Datos</h2>",unsafe_allow_html=True)
+    st.markdown("<h3>Asignatura de Visualización de Datos</h3>",unsafe_allow_html=True)
+    st.markdown('<h4><span style="font-weight: bold">ALUMNO  :  </span>Daniel Sáenz de Cosca Lacalle</h4>',unsafe_allow_html=True)
+
 age_domain = [15, 20, 25, 30, 35]
 
-with st.expander("Datos de rendimiento de futbolistas", expanded=True  ):
+with st.expander("Datos de rendimiento de futbolistas", expanded=True):
 
     if choose == 'Cualquiera':
         st.markdown(" ### COMPARACIÓN RENDIMIENTO GENERAL ENTRE FUTBOLISTAS")
