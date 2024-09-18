@@ -15,44 +15,48 @@ def mapping_player_nation_geo(name):
         return name
 
 icon = Image.open("field.png") 
+
 st.set_page_config(page_title="Estadísticas de rendimientos y valores de mercado de futbolistas de clubes europeos", layout="wide",
                    page_icon=icon)
 
-st.markdown('<style>#vg-tooltip-element{z-index: 1000051}</style>',
-             unsafe_allow_html=True)
 ## https://github.com/vega/vega-tooltip/pull/507 fix multiple creation of tooltip element for each chart in document, fix tooltip added to the correct document.body 
 ## or document.fullscreenElement (depending on fullscreen mode)
+st.markdown('<style>#vg-tooltip-element{z-index: 1000051}</style>',
+             unsafe_allow_html=True)
+
 
 ## Desactivo el maximo de filas a mostrar de Altair, porque pueden ser muchas
 alt.data_transformers.disable_max_rows()   
 
-with st.expander("Jugadores por temporada ..."):
-    ### PRIMER GRÁFICO CON EL NUMERO DE JUGADORES POR TEMPORADA
-    st.markdown(" ### NÚMERO DE JUGADORES POR TEMPORADA")
-    st.markdown(" Mostramos en un gráfico de lineas el número de jugadores distintos de que disponemos por temporada. "\
-                "Vemos que los datos recogidos van de 2008/2009 a 2015/2016")
-    
-    df_mkt_player_team_matches = pd.read_csv('df_mkt_player_team_matches_v2.csv', header=0)
-    df_altair1 = pd.DataFrame(index=['numero_jugadores'])    
-    for i in np.arange(2009,2017):
-        count = len(df_mkt_player_team_matches.loc[df_mkt_player_team_matches['season']==i]\
-            .groupby(['player_api_id']))
-        df_altair1[str(i)] = count 
-    
-    chart1 = alt.Chart(df_altair1.T.reset_index()).mark_line().encode(
-          alt.X('index:N',title="Año"),
-          alt.Y('numero_jugadores:Q',title="Número de Jugadores" )
-    ).properties(
-        width=500)
-    
-    st.altair_chart(chart1)
+### Leo el CSV principal con datos de mercado, futbolista, equipo y partidos
+df_mkt_player_team_matches = pd.read_csv('df_mkt_player_team_matches_v3.csv', header=0, sep=';', quotechar='"')
 
+#with st.expander("Jugadores por temporada ..."):
+#    ### PRIMER GRÁFICO CON EL NUMERO DE JUGADORES POR TEMPORADA
+#    st.markdown(" ### NÚMERO DE JUGADORES POR TEMPORADA")
+#    st.markdown(" Mostramos en un gráfico de lineas el número de jugadores distintos de que disponemos por temporada. "\
+#                "Vemos que los datos recogidos van de 2008/2009 a 2015/2016")    
+    
+#    df_altair1 = pd.DataFrame(index=['numero_jugadores'])    
+#    for i in np.arange(2009,2017):
+#        count = len(df_mkt_player_team_matches.loc[df_mkt_player_team_matches['season']==i]\
+#            .groupby(['player_api_id']))
+#        df_altair1[str(i)] = count 
+    
+#    chart1 = alt.Chart(df_altair1.T.reset_index()).mark_line().encode(
+#          alt.X('index:N',title="Año"),
+#          alt.Y('numero_jugadores:Q',title="Número de Jugadores" )
+#    ).properties(
+#        width=500)
+    
+#    st.altair_chart(chart1)
 
+print("Ligas..." + df_mkt_player_team_matches['team_country'].unique())
 
 with st.expander("Valor de mercado de futbolistas y paises de procedencia por años (selección de países) ..."):
     ### SEGUNDO GRÁFICO CON EL REPARTO DEL VALOR DE MERCADO DE LOS FUTBOLISTAS POR TEMPORADA Y POR NACIONALIDAD DEL FUTBOLISTA
     st.markdown(" ### REPARTO DEL VALOR DE MERCADO DE LOS FUTBOLISTAS POR TEMPORADA Y POR PAISES DE PROCEDENCIA ")
-    df_altair2 = df_mkt_player_team_matches.loc[:,['player_name','player_nation', 'season', 'market_val_amnt']]
+    df_altair2 = df_mkt_player_team_matches.loc[:,['player_name','player_nation', 'season', 'market_val_amnt', 'team_country']]
     df_altair2.drop_duplicates(inplace=True)
     df_altair2.dropna(axis=0, how='any', subset=['market_val_amnt'], inplace=True)
     df_altair2.sort_values(by=['season'])
@@ -60,17 +64,30 @@ with st.expander("Valor de mercado de futbolistas y paises de procedencia por a�
     df_altair2['tooltip'] = df_altair2['player_name'] + ' from '+ df_altair2['player_nation'] \
         + ', Valor de mercado: ' + format_amount(df_altair2['market_val_amnt'])
     
-    selected_nation_players= ["France", "Spain", "United States", "England", "Wales", "Argentina"," Germany", \
-                              "Italy", "Poland","Brazil", "Croatia","Belgium", "Portugal", "Colombia", "Netherlands", \
-                              "Gabon", "Algeria", "Austria", "Serbia", "Bosnia-Herzegovina", "Austria", "Uruguay", \
-                              "Paraguay", "Nigeria", "Scotland", "Slovenia", "Morocco", "Mali"]
     
+    selected_nation_players= ["France", "Spain", "United States", "England", "Wales", "Argentina", "Germany", \
+                              "Italy", "Poland", "Brazil", "Croatia", "Belgium", "Portugal", "Colombia", "Netherlands", \
+                              "Gabon", "Algeria", "Austria", "Serbia", "Bosnia-Herzegovina", "Uruguay", \
+                              "Nigeria", "Morocco"]
+    
+    country_type = {"nativo del futbolista": "player_nation", "del equipo en el que juega" : "team_country" }    
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:                   
+        sel_country_type = st.selectbox(label="Es el país..", key="country_type", options=(country_type) )
+    with col2:
+        dyn_selected_nation_players = st.multiselect("Seleccione paises..",  options=selected_nation_players, default=[], max_selections=8)
+    with col3:
+        pass
+    with col4:
+        pass
+        
+        
     chart2 = alt.Chart(df_altair2).transform_filter(
-        filter={"field": 'player_nation',
-                "oneOf": selected_nation_players}).mark_bar().encode(
+        filter={"field": country_type[sel_country_type],
+                "oneOf": dyn_selected_nation_players}).mark_bar().encode(
           alt.X('season:N', title='Año'),
-          alt.Y('market_val_amnt:Q', title='Valor de mercado acumulado desglosado por pais', scale=alt.Scale(domain = [0, 4e9])),
-          color='player_nation',
+          alt.Y('market_val_amnt:Q', title='Valor de mercado acumulado desglosado por pais '+ sel_country_type , scale=alt.Scale(domain = [0, 4e9])),
+          color=country_type[sel_country_type],
           tooltip='tooltip:N',
     ).properties(
         width=800, height=650).interactive()
@@ -172,6 +189,11 @@ with st.expander("Valor de mercado a nivel mundial por años..."):
 
         
 with st.sidebar:
+    st.markdown('<table><tr><td style="width:50px;background-color:#39433C;"/><td style="background-color:#39433C; "><h1 style="color:white">U N E D</h1></td><td style="width:50px;background-color:#39433C;"/></tr></table>', unsafe_allow_html=True)
+    st.markdown("<h2>Master en Ciencia y Tecnología de Datos</h2>",unsafe_allow_html=True)
+    st.markdown("<h3>Asignatura de Visualización de Datos</h3>",unsafe_allow_html=True)
+    st.markdown('<h4><span style="font-weight: bold">ALUMNO  :  </span>Daniel Sáenz de Cosca Lacalle</h4>',unsafe_allow_html=True)
+    
     choose = option_menu(        
         "Seleccione por posición del futbolista en el campo",
         ["Cualquiera", 
@@ -184,10 +206,7 @@ with st.sidebar:
          ],
          key="chooser")
 
-    st.markdown('<h1>U.N.E.D</h1>', unsafe_allow_html=True)
-    st.markdown("<h2>Master en Ciencia y Tecnología de Datos</h2>",unsafe_allow_html=True)
-    st.markdown("<h3>Asignatura de Visualización de Datos</h3>",unsafe_allow_html=True)
-    st.markdown('<h4><span style="font-weight: bold">ALUMNO  :  </span>Daniel Sáenz de Cosca Lacalle</h4>',unsafe_allow_html=True)
+
 
 age_domain = [15, 20, 25, 30, 35]
 
